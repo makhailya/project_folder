@@ -78,3 +78,7 @@ temp/
 *.bak
 #htmlcov/
 #coverage_report.txt
+
+для
+тестов
+tests/__init__.py
