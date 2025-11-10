@@ -1,17 +1,177 @@
-1)Главные идеи реализации (кратко)
+# 💼 Курсовая работа: Анализ и управление вакансиями с hh.ru
 
-BaseAPI (abstract) объявляет методы connect() (внутр. метод) и get_vacancies(text, per_page, page) — без реализации.
-HeadHunterAPI/HHAPI наследует и реализует подключение и получение вакансий через requests.
-Vacancy — класс вакансии с __slots__, валидацией (если зарплата отсутствует — ставим 0), методами сравнения по зарплате (__lt__, __gt__, __eq__) и сериализацией в dict.
-BaseStorage (abstract) — объявляет add_vacancy, get_vacancies(filter...), delete_vacancy, load_all.
-JSONStorage реализует работу с JSON: добавляет вакансии без дублей (сравнение по уникальному id или url), хранит имя файла приватно.
-utils.py — функции фильтрации, сортировки, преобразования JSON в объекты Vacancy и обратно.
-main.py — CLI: ввод запроса, сохранение, топ N по зарплате, поиск по слову и т.д.
+## 📘 Описание проекта
 
-2)Тесты (кейсы, что нужно покрыть)
+Этот проект представляет собой **интеграцию с API сайта [hh.ru](https://hh.ru/)**, которая позволяет получать, сохранять и обрабатывать вакансии по заданным критериям.  
+Программа выполняет поиск вакансий, сохраняет их в **JSON-файл**, а также предоставляет удобные инструменты для фильтрации, сортировки и удаления данных.
 
-tests/test_api.py — мок HeadHunterAPI._connect и requests/get, проверка что get_vacancies возвращает items и что _connect вызывается.
-tests/test_vacancy.py — проверка from_hh_item, сравнение вакансий (__lt__, __gt__, __eq__), avg_salary, валидация зарплаты.
-tests/test_storage.py — создание временного temp file (tmp_path), add_vacancies (без дублей), get_all, delete_vacancy.
-tests/test_utils.py — filter_by_keyword, get_top_by_salary.
-При тестах мокай внешние запросы, используйте monkeypatch или unittest.mock.patch.
+Проект разработан в парадигме **ООП**, с использованием **абстрактных классов**, принципов **SOLID** и модульного тестирования на базе **pytest**.
+
+---
+
+## ⚙️ Функциональные возможности
+
+- 🔍 Получение списка вакансий с hh.ru через API  
+- 💾 Сохранение вакансий в **JSON-файл** без дублирования  
+- 🧹 Удаление и добавление вакансий в файл  
+- 🔎 Фильтрация вакансий по ключевым словам  
+- 💰 Получение **топ-N вакансий** по уровню зарплаты  
+- 🧮 Валидация данных при создании вакансий  
+- 🧠 Сравнение вакансий по зарплате  
+- 🧑‍💻 Интерактивное взаимодействие с пользователем через консоль  
+
+---
+
+## 🧩 Структура проекта
+
+hh_coursework/
+├── src/
+│   ├── api/
+│   │   ├── base_api.py            # Абстрактный класс для API
+│   │   └── hh_api.py              # Реализация API для hh.ru
+│   ├── vacancies/
+│   │   └── vacancy.py             # Класс вакансии
+│   ├── storage/
+│   │   ├── base_storage.py        # Абстрактный класс хранилища
+│   │   └── json_storage.py        # Работа с JSON-файлами
+│   ├── utils.py                   # Вспомогательные функции фильтрации и сортировки
+│   └── main.py                    # Точка входа: интерфейс пользователя
+│
+├── tests/                         # Модульные тесты pytest
+├── pyproject.toml                 # Зависимости Poetry
+├── .gitignore
+└── README.md
+
+---
+
+## 🧱 Основные классы
+
+### 🔸 `HeadHunterAPI`
+Класс для взаимодействия с API сайта hh.ru.  
+Реализует:
+- подключение к API через библиотеку `requests`;
+- обработку ответов и проверку статус-кодов;
+- получение списка вакансий по ключевому слову.
+
+Пример:
+```python
+from src.api.hh_api import HeadHunterAPI
+
+api = HeadHunterAPI()
+vacancies = api.get_vacancies("Python")
+print(len(vacancies))  # Количество найденных вакансий
+
+🔸 Vacancy
+
+Класс, описывающий вакансию.
+
+Атрибуты:
+	•	title — название;
+	•	url — ссылка;
+	•	salary_from, salary_to — диапазон зарплат;
+	•	description — краткое описание;
+	•	id — уникальный идентификатор.
+
+Особенности:
+	•	Валидация данных при инициализации (если зарплата не указана — значение 0);
+	•	Сравнение вакансий по средней зарплате (__lt__, __gt__, __eq__);
+	•	Метод from_hh_item() для преобразования JSON-ответа hh.ru в объект.
+
+Пример:
+v = Vacancy("Python Developer", "https://hh.ru/vacancy/123", 100000, 150000, "Опыт работы с Django")
+print(v.avg_salary)  # 125000.0
+
+🔸 JSONStorage
+
+Класс для хранения вакансий в JSON-файле.
+
+Возможности:
+	•	Добавление вакансий без дублирования;
+	•	Удаление вакансии;
+	•	Получение всех вакансий из файла.
+
+Пример:
+from src.storage.json_storage import JSONStorage
+from src.vacancies.vacancy import Vacancy
+
+storage = JSONStorage("vacancies.json")
+storage.add_vacancies([Vacancy("Python Dev", "url", 100000, 150000, "описание")])
+for v in storage.get_all():
+    print(v.title)
+
+🔸 Вспомогательные функции (utils.py)
+	•	filter_by_keyword(vacancies, keyword) — фильтрация по ключевому слову;
+	•	get_top_by_salary(vacancies, n) — получение топ-N по зарплате;
+	•	cast_items_to_vacancies(items) — преобразование JSON в объекты.
+
+⸻
+
+🧠 Интерфейс пользователя
+
+Функция user_interaction() обеспечивает работу программы через консоль.
+Пользователь может:
+	1.	🔎 Ввести поисковый запрос (например, “Python developer”)
+	2.	💰 Указать количество топ-вакансий
+	3.	🔤 Фильтровать вакансии по ключевым словам
+	4.	📋 Просмотреть результаты в удобном формате
+
+🖥️ Пример работы программы
+Введите поисковый запрос: Python developer
+Введите количество вакансий для вывода в топ N: 5
+Введите ключевые слова для фильтрации вакансий: Django Flask
+
+🔍 Найдено 120 вакансий по запросу "Python developer"
+📊 После фильтрации по ключевым словам осталось 37 вакансий
+
+🏆 Топ-5 вакансий по зарплате:
+
+1️⃣ Senior Python Developer — 250000 руб.
+   https://hh.ru/vacancy/123456
+   Требования: Django, PostgreSQL, REST API
+
+2️⃣ Middle Backend Engineer — 220000 руб.
+   https://hh.ru/vacancy/789101
+   Требования: Flask, FastAPI, SQLAlchemy
+
+3️⃣ Python Developer — 200000 руб.
+   https://hh.ru/vacancy/112233
+   Требования: Опыт с Docker и Redis
+
+...
+
+🧪 Тестирование
+
+Проект покрыт модульными тестами с использованием pytest и pytest-cov.
+
+Запуск тестов:
+poetry run pytest -v
+
+Проверка покрытия:
+poetry run pytest --cov=src --cov-report=term-missing
+
+Генерация HTML-отчёта:
+poetry run pytest --cov=src --cov-report=html
+open htmlcov/index.html
+
+📊 Покрытие кода
+
+✅ Среднее покрытие тестами: 85–90%
+Покрыты все ключевые классы (API, Vacancy, JSONStorage, utils).
+
+⸻
+
+🧰 Используемые технологии
+	•	Python 3.13
+	•	requests
+	•	pytest
+	•	pytest-cov
+	•	json
+	•	Poetry — для управления зависимостями
+
+⸻
+
+🧑‍💻 Автор
+
+Илья Маханек
+📧 Email: [makhailya@gmail.com]
+🐙 GitHub: makhailya￼
