@@ -12,7 +12,7 @@ ENV/
 *.env.*
 
 # === Poetry ===
-poetry.lock
+#poetry.lock
 # Если lock-файл нужен наставнику — можно закомментировать выше
 
 # === Logs ===
@@ -52,7 +52,8 @@ data/
 *.csv
 *.xlsx
 *.xls
-*.json
+# Исключаем только временные или большие JSON
+data/*.json
 
 # === Mypy / Type checking ===
 .mypy_cache/
@@ -78,7 +79,3 @@ temp/
 *.bak
 #htmlcov/
 #coverage_report.txt
-
-для
-тестов
-tests/__init__.py
