@@ -1,0 +1,81 @@
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+
+# === Virtual Environments ===
+.venv/
+venv/
+env/
+ENV/
+*.env
+*.env.*
+
+# === Poetry ===
+#poetry.lock
+# Если lock-файл нужен наставнику — можно закомментировать выше
+
+# === Logs ===
+*.log
+logs/
+debug.log
+
+# === Byte-compiled / optimized / DLL files ===
+*.so
+*.dll
+*.dylib
+*.pyd
+
+# === Unit test / coverage reports ===
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+nosetests.xml
+coverage.xml
+
+# === IDE / Editors ===
+.vscode/
+.idea/
+*.iml
+
+# === OS generated files ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === Jupyter notebooks ===
+.ipynb_checkpoints
+
+# === Data files ===
+data/
+*.csv
+*.xlsx
+*.xls
+# Исключаем только временные или большие JSON
+data/*.json
+
+# === Mypy / Type checking ===
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# === Reports ===
+reports/
+*.html
+*.xml
+
+# === Build / Distribution ===
+build/
+dist/
+*.egg-info/
+.eggs/
+MANIFEST
+
+# === Temporary files ===
+tmp/
+temp/
+*.tmp
+*.bak
+#htmlcov/
+#coverage_report.txt
